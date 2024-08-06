@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/07/30 18:09:04 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/08/05 21:44:42 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,21 +24,22 @@ typedef enum e_bool
 {
 	FALSE,
 	TRUE
-}				t_bool;
+}					t_bool;
 
 typedef struct s_core
 {
-	char		**argv;
-	long long	day;
-	int			nb_of_philos;
-	int			time_to_die;
-	int			time_to_eat;
-	int			time_to_sleep;
-	int			eat_cicles;
-}				t_core;
+	char			**argv;
+	pthread_mutex_t	forks[200];
+	long long		day;
+	int				nb_of_philos;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				eat_cicles;
+}					t_core;
 
-t_core			*get_core(void);
-long long		get_time(void);
-long long		get_ms();
+t_core				*get_core(void);
+long long			get_time(void);
+long long			get_ms(void);
 
 #endif
