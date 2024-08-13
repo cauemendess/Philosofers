@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/08/05 21:44:42 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/08/13 17:13:07 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,20 +26,28 @@ typedef enum e_bool
 	TRUE
 }					t_bool;
 
+typedef struct s_philo
+{
+	pthread_mutex_t	fork;
+	pthread_t		philo;
+	int				*death;
+	int				id;
+}					t_philo;
 typedef struct s_core
 {
 	char			**argv;
-	pthread_mutex_t	forks[200];
+	t_philo			philos[200];
 	long long		day;
 	int				nb_of_philos;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				eat_cicles;
+	pthread_mutex_t print;
 }					t_core;
 
 t_core				*get_core(void);
-long long			get_time(void);
-long long			get_ms(void);
+size_t			get_time(void);
+size_t			get_ms(void);
 
 #endif

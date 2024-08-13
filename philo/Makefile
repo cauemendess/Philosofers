@@ -4,7 +4,7 @@
 HIDE = @
 
 CC      = gcc
-CFLAGS  = -Wall -Werror -Wextra -pthread -I. -I./$(INCDIR) -I../libft
+CFLAGS  = -Wall -Werror -Wextra -fsanitize=address -pthread  -I. -I./$(INCDIR) -I../libft
 RM      = rm -f
 LIBFT   = ../libft/libft.a
 
