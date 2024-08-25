@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/08/13 17:13:07 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/08/25 17:59:40 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ typedef struct s_philo
 {
 	pthread_mutex_t	fork;
 	pthread_t		philo;
-	int				*death;
 	int				id;
+	size_t			last_meal;
 }					t_philo;
 typedef struct s_core
 {
