@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:38:35 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/08/25 18:26:01 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/08/28 18:01:33 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,15 @@ void	print_action(char *str, int id)
 	printf("%zu %d %s\n", get_ms(), id, str);
 	pthread_mutex_unlock(&get_core()->print);
 }
+
+void set_last_meal(t_philo *philo)
+{
+	pthread_mutex_lock(&get_core()->joker);
+	philo->last_meal = get_ms();
+	pthread_mutex_unlock(&get_core()->joker);
+}
+
+
 
 void	eat(t_philo *philo)
 {
@@ -45,6 +54,7 @@ void	eat(t_philo *philo)
 		pthread_mutex_lock(&philo[right_fork].fork);
 		pthread_mutex_lock(&philo[left_fork].fork);
 	}
+	set_last_meal(philo);
 	print_action("has taken a fork", philo->id);
 	print_action("has taken a fork", philo->id);
 	print_action("is eating", philo->id);
@@ -62,24 +72,20 @@ void	chill(t_philo *philo)
 	usleep(1000);
 }
 
-t_bool verify_die(t_philo *philo)
-{
-	return get_bool(get_core()->alguemmorreu)
-}
 
-void monitor()
+
+void *monitor(void *void_philo)
 {
 	int i;
+	t_philo	*philo;
 
 	i = 0;
-	while (i < philo_number)
+
+	philo = (t_philo *)void_philo;
+	while (i < get_core()->nb_of_philos)
 	{
-		if (
-			// atual morreu
-		)
-		{
-			get_core()->alguemmorreu = true;
-		}
+		if (philo->last_meal > get_core()->time_to_die)
+			get_core()->philo_dies = TRUE;
 	}
 }
 

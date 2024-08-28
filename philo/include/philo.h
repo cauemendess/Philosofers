@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/08/25 17:59:40 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/08/28 17:53:59 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,14 @@ typedef struct s_core
 	int				time_to_sleep;
 	int				eat_cicles;
 	pthread_mutex_t print;
+	pthread_mutex_t joker;
+	t_bool			philo_dies;
 }					t_core;
 
-t_core				*get_core(void);
+t_core			*get_core(void);
 size_t			get_time(void);
 size_t			get_ms(void);
+t_bool			verify_die(t_philo *philo);
+
 
 #endif
