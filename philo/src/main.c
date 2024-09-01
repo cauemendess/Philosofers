@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:38:35 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/08/28 18:01:33 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/01 18:37:52 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,17 @@ t_core	*get_core(void)
 void	print_action(char *str, int id)
 {
 	pthread_mutex_lock(&get_core()->print);
-	printf("%zu %d %s\n", get_ms(), id, str);
+	if(!verify_die())
+		printf("%zu %d %s\n", get_ms(), id, str);
 	pthread_mutex_unlock(&get_core()->print);
 }
 
 void set_last_meal(t_philo *philo)
 {
-	pthread_mutex_lock(&get_core()->joker);
+	pthread_mutex_lock(&get_core()->joker[LAST_MEAL]);
 	philo->last_meal = get_ms();
-	pthread_mutex_unlock(&get_core()->joker);
+	pthread_mutex_unlock(&get_core()->joker[LAST_MEAL]);
 }
-
-
 
 void	eat(t_philo *philo)
 {
@@ -58,7 +57,6 @@ void	eat(t_philo *philo)
 	print_action("has taken a fork", philo->id);
 	print_action("has taken a fork", philo->id);
 	print_action("is eating", philo->id);
-	
 	usleep(get_core()->time_to_eat * 1000);
 	pthread_mutex_unlock(&philo[left_fork].fork);
 	pthread_mutex_unlock(&philo[right_fork].fork);
@@ -72,31 +70,61 @@ void	chill(t_philo *philo)
 	usleep(1000);
 }
 
-
-
 void *monitor(void *void_philo)
 {
 	int i;
+	(void)void_philo;
 	t_philo	*philo;
 
 	i = 0;
 
-	philo = (t_philo *)void_philo;
-	while (i < get_core()->nb_of_philos)
+	philo = get_core()->philos;
+	while(!verify_die())
 	{
-		if (philo->last_meal > get_core()->time_to_die)
-			get_core()->philo_dies = TRUE;
+		while (i < get_core()->nb_of_philos)
+		{
+			if (get_ms() - get_last_meal(&philo[i]) > get_core()->time_to_die)
+			{
+				print_action("died", philo[i].id);
+				pthread_mutex_lock(&get_core()->joker[PHILO_DIE]);
+				get_core()->philo_dies = TRUE;
+				pthread_mutex_unlock(&get_core()->joker[PHILO_DIE]);
+				
+				return(NULL);
+			}
+		}
 	}
+	return(NULL);
 }
+
+//void instakill(void)
+//{
+//	t_core	*core;
+
+//	core = get_core();
+//	print_action("has taken a fork", core->philo->id);
+
+//	usleep(data->time_to_die * 100);
+//	print_status(philo, DIED);
+//	pthread_mutex_lock(&data->m_vars[M_PHILO_DEAD]);
+//	data->philo_dead = TRUE;
+//	pthread_mutex_unlock(&data->m_vars[M_PHILO_DEAD]);
+//}
+
+
 
 void	*routine(void *void_philo)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)void_philo;
+
+
+	if(get_nb_philos() == 1)
+		instakill();
 	while (1)
 	{
-		if(verify_die(philo))
+		if(verify_die())
 			break;
 		eat(philo);
 		chill(philo);
@@ -110,8 +138,15 @@ void	inicialize_philos(void)
 	t_philo	*philos;
 
 	philos = get_core()->philos;
-	get_core()->day = get_time();
 	pthread_mutex_init(&get_core()->print, NULL);
+	if(get_core()->nb_of_philos > 1)
+		pthread_create(&get_core()->monitor, NULL, &monitor, NULL);
+	i = 0;
+	while(i < 10)
+	{
+		pthread_mutex_init(&get_core()->joker[i], NULL);
+		i++;
+	}
 	i = 0;
 	n_of_philos = get_core()->nb_of_philos;
 	while (i < n_of_philos)
@@ -120,6 +155,7 @@ void	inicialize_philos(void)
 		i++;
 	}
 	i = 0;
+	get_core()->day = get_time();
 	while (i < n_of_philos)
 	{
 		philos[i].id = i + 1;
@@ -157,6 +193,13 @@ void	destroy_philos(void)
 		printf("BYE\n");
 		i++;
 	}
+	i = 0;
+	while(i < 10)
+	{
+		pthread_mutex_destroy(&get_core()->joker[i]);
+		i++;
+	}
+	//pthread_join(get_core()->monitor, NULL);
 }
 
 int	main(int argc, char **argv)
@@ -166,6 +209,7 @@ int	main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 	//pthread_mutex_init(&mutex, NULL);
+	//get_core()->day = get_time();
 	save_data(argv);
 	inicialize_philos();
 	destroy_philos();

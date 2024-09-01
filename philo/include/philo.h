@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/08/28 17:53:59 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/01 16:18:04 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,20 @@
 # include <stdlib.h>
 # include <sys/time.h>
 # include <unistd.h>
+
+
+enum{
+	PHILO_DIE,
+	START_TIME,
+	PHILO_COUNT,
+	TIME_TO_DIE,
+	TIME_TO_EAT,
+	TIME_TO_SLEEP,
+	TOTAL_MEALS,
+	PHILO_ID,
+	EAT_COUNT,
+	LAST_MEAL
+};
 
 typedef enum e_bool
 {
@@ -39,19 +53,20 @@ typedef struct s_core
 	t_philo			philos[200];
 	long long		day;
 	int				nb_of_philos;
-	int				time_to_die;
+	size_t			time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				eat_cicles;
 	pthread_mutex_t print;
-	pthread_mutex_t joker;
+	pthread_mutex_t joker[10];
+	pthread_t		monitor;
 	t_bool			philo_dies;
 }					t_core;
 
 t_core			*get_core(void);
 size_t			get_time(void);
 size_t			get_ms(void);
-t_bool			verify_die(t_philo *philo);
-
+t_bool			verify_die(void);
+size_t			get_last_meal(t_philo *philo);
 
 #endif
