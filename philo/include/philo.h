@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/01 16:18:04 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/05 16:20:04 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,5 +68,6 @@ size_t			get_time(void);
 size_t			get_ms(void);
 t_bool			verify_die(void);
 size_t			get_last_meal(t_philo *philo);
+int				get_nb_philos(void);
 
 #endif

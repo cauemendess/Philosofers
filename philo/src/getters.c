@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 17:48:37 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/01 18:33:42 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/05 16:07:51 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ size_t get_last_meal(t_philo *philo)
 	pthread_mutex_unlock(&get_core()->joker[LAST_MEAL]);
 	return(meal);
 }
-
 
 size_t get_time_to_die(void)
 {	
