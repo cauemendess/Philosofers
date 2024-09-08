@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 17:48:37 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/05 16:07:51 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/08 18:47:33 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,5 +51,15 @@ int get_nb_philos(void)
 	nb = get_core()->nb_of_philos;
 	pthread_mutex_unlock(&get_core()->joker[PHILO_COUNT]);
 	return(nb);
+}
+
+int	get_eat_cicles(void)
+{
+	int eat_cicles;
+	pthread_mutex_lock(&get_core()->joker[TOTAL_MEALS]);
+	eat_cicles = get_core()->eat_cicles;
+	pthread_mutex_unlock(&get_core()->joker[TOTAL_MEALS]);
+	return(eat_cicles);
+	
 }
 

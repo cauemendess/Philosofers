@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:38:35 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/05 19:46:33 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/08 18:50:18 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,17 @@ void	print_action(char *str, int id)
 {
 	pthread_mutex_lock(&get_core()->print);
 	if(!verify_die())
-		printf("%zu %d %s\n", get_ms(), id, str);
+		printf("%llu %d %s\n", get_time() - get_core()->day, id, str);
 	pthread_mutex_unlock(&get_core()->print);
 }
 
-void set_last_meal(t_philo *philo)
+size_t set_last_meal(void)
 {
+	size_t last_meal;
 	pthread_mutex_lock(&get_core()->joker[LAST_MEAL]);
-	philo->last_meal = get_time();
+	last_meal = get_time();
 	pthread_mutex_unlock(&get_core()->joker[LAST_MEAL]);
+	return(last_meal);
 }
 
 void	eat(t_philo *philo)
@@ -41,25 +43,44 @@ void	eat(t_philo *philo)
 	int	right_fork;
 
 	n_of_philos = get_core()->nb_of_philos;
-	left_fork = philo->id - 1;
-	right_fork = (philo->id % n_of_philos);
-	if (philo->id % 2 != 0)
+	left_fork = 0;
+	if(philo->id == n_of_philos)
+		right_fork = -(philo->id - 1);
+	else
+		right_fork = 1;
+	if(get_eat_cicles() != 0 && philo->eat_count == get_eat_cicles())
+		return ;
+	if (philo->id % 2 == 0)
 	{
-		pthread_mutex_lock(&philo[right_fork].fork);
 		pthread_mutex_lock(&philo[left_fork].fork);
+		pthread_mutex_lock(&philo[right_fork].fork);
 	}
 	else
 	{
-		pthread_mutex_lock(&philo[left_fork].fork);
 		pthread_mutex_lock(&philo[right_fork].fork);
+		pthread_mutex_lock(&philo[left_fork].fork);
 	}
-	set_last_meal(philo);
 	print_action("has taken a fork", philo->id);
 	print_action("has taken a fork", philo->id);
+	
+	pthread_mutex_lock(&get_core()->joker[LAST_MEAL]);
+	philo->last_meal = get_time();
+	pthread_mutex_unlock(&get_core()->joker[LAST_MEAL]);
+	
 	print_action("is eating", philo->id);
 	usleep(get_core()->time_to_eat * 1000);
-	pthread_mutex_unlock(&philo[left_fork].fork);
-	pthread_mutex_unlock(&philo[right_fork].fork);
+	
+	philo->eat_count++;
+	if (philo->id % 2 == 0)
+	{
+		pthread_mutex_unlock(&philo[left_fork].fork);
+		pthread_mutex_unlock(&philo[right_fork].fork);
+	}
+	else
+	{
+		pthread_mutex_unlock(&philo[right_fork].fork);
+		pthread_mutex_unlock(&philo[left_fork].fork);
+	}
 }
 
 void	chill(t_philo *philo)
@@ -67,37 +88,32 @@ void	chill(t_philo *philo)
 	print_action("is sleeping", philo->id);
 	usleep(get_core()->time_to_sleep * 1000);
 	print_action("is thinking", philo->id);
-	usleep(1000);
+	//usleep(1000);
 }
 
-void *monitor(void *void_philo)
+t_bool monitor(t_core *core)
 {
 	int i;
-	(void)void_philo;
 	t_philo	*philo;
+	size_t meal;
 
+	philo = core->philos;
 	i = 0;
-
-	philo = get_core()->philos;
-	while(!verify_die())
+	while (i < get_core()->nb_of_philos)
 	{
-		while (i < get_core()->nb_of_philos)
+		pthread_mutex_lock(&get_core()->joker[LAST_MEAL]);
+		meal = philo->last_meal;
+		pthread_mutex_unlock(&get_core()->joker[LAST_MEAL]);
+		if ((get_time() - meal) > (get_core()->time_to_die))
 		{
-			if ((get_time() - get_last_meal(&philo[i])) > get_core()->time_to_die)
-			{
-				printf("%zu\n", get_last_meal(&philo[i]));
-				printf("%zu\n", get_time());
-				
-				print_action("died", philo[i].id);
-				pthread_mutex_lock(&get_core()->joker[PHILO_DIE]);
-				get_core()->philo_dies = TRUE;
-				pthread_mutex_unlock(&get_core()->joker[PHILO_DIE]);
-				
-				return(NULL);
-			}
+			print_action("died", philo[i].id);
+			pthread_mutex_lock(&get_core()->joker[PHILO_DIE]);
+			get_core()->philo_dies = TRUE;
+			pthread_mutex_unlock(&get_core()->joker[PHILO_DIE]);
+			return(1);
 		}
 	}
-	return(NULL);
+	return(0);
 }
 
 void instakill(void)
@@ -124,10 +140,8 @@ void	*routine(void *void_philo)
 
 	if(get_nb_philos() == 1)
 		instakill();
-	while (1)
+	while (!verify_die())
 	{
-		if(verify_die())
-			break;
 		eat(philo);
 		chill(philo);
 	}
@@ -138,11 +152,9 @@ void	inicialize_philos(void)
 	int		i;
 	int		n_of_philos;
 	t_philo	*philos;
-
+	n_of_philos = get_core()->nb_of_philos;
 	philos = get_core()->philos;
 	pthread_mutex_init(&get_core()->print, NULL);
-	if(get_core()->nb_of_philos > 1)
-		pthread_create(&get_core()->monitor, NULL, &monitor, NULL);
 	i = 0;
 	while(i < 10)
 	{
@@ -150,7 +162,6 @@ void	inicialize_philos(void)
 		i++;
 	}
 	i = 0;
-	n_of_philos = get_core()->nb_of_philos;
 	while (i < n_of_philos)
 	{
 		pthread_mutex_init(&philos[i].fork, NULL);
@@ -166,6 +177,8 @@ void	inicialize_philos(void)
 		
 		i++;
 	}
+	while(!monitor(get_core()))
+		;
 }
 
 void	save_data(char **argv)
@@ -209,7 +222,7 @@ void	destroy_philos(void)
 		pthread_mutex_destroy(&get_core()->joker[i]);
 		i++;
 	}
-	pthread_join(get_core()->monitor, NULL);
+	//pthread_join(get_core()->monitor, NULL);
 }
 
 int	main(int argc, char **argv)

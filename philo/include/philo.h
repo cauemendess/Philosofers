@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/05 16:20:04 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/08 18:51:21 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ typedef struct s_philo
 	pthread_mutex_t	fork;
 	pthread_t		philo;
 	int				id;
+	int				eat_count;
 	size_t			last_meal;
 }					t_philo;
 typedef struct s_core
@@ -64,7 +65,9 @@ typedef struct s_core
 }					t_core;
 
 t_core			*get_core(void);
-size_t			get_time(void);
+long			get_time(void);
+
+int				get_eat_cicles(void);
 size_t			get_ms(void);
 t_bool			verify_die(void);
 size_t			get_last_meal(t_philo *philo);
