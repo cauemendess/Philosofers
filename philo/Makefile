@@ -1,45 +1,41 @@
 .DEFAULT_GOAL: all
 .DELETE_ON_ERROR:
-.PHONY: all bonus clean fclean re
+.PHONY: all clean fclean re
 HIDE = @
 
 CC      = gcc
-CFLAGS  = -Wall -Werror -Wextra -pthread  -I. -I./$(INCDIR) -I../libft
+CFLAGS  = -Wall -Werror -Wextra -pthread -Iinclude
 RM      = rm -f
-LIBFT   = ../libft/libft.a
 
 NAME    = philo
 
 SRCDIR  = src/
-SRCS    = $(wildcard $(SRCDIR)*.c)
+SRC     = main.c getters.c utils.c time.c validate.c
+SRCS    = $(addprefix $(SRCDIR), $(SRC))
 OBJDIR  = bin/
-OBJS    = $(patsubst $(SRCDIR)%.c,$(OBJDIR)%.o,$(SRCS))
+OBJS    = $(addprefix $(OBJDIR), $(SRC:.c=.o))
 
 INCDIR  = include/
-INC     = $(wildcard $(INCDIR)*.h)
+INC     = $(INCDIR)include.h
 
-all: $(LIBFT) $(NAME)
+all: $(OBJDIR) $(NAME)
 
 $(NAME): $(OBJS)
-	$(HIDE)$(CC) $(CFLAGS) -o $@ $^ $(LIBFT)
-
-$(LIBFT):
-	$(HIDE)make -C ../libft
-
-$(OBJDIR)%.o : $(SRCDIR)%.c $(INC) | $(OBJDIR)
-	$(HIDE)$(CC) $(CFLAGS) -c $< -o $@
+	$(HIDE)$(CC) $(CFLAGS) -o $@ $^
 
 $(OBJDIR):
 	$(HIDE)mkdir -p $@
 
+$(OBJDIR)%.o: $(SRCDIR)%.c | $(OBJDIR)
+	$(HIDE)$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
 	$(HIDE)$(RM) $(OBJS)
-	$(HIDE)make -C ../libft clean
 
 fclean: clean
 	$(HIDE)$(RM) $(NAME)
 	$(HIDE)$(RM) -r $(OBJDIR)
-	$(HIDE)make -C ../libft fclean
 
 re: fclean all
+
 

@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:38:35 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/08 18:50:18 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/11 17:05:29 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,7 @@ void	eat(t_philo *philo)
 		right_fork = -(philo->id - 1);
 	else
 		right_fork = 1;
-	if(get_eat_cicles() != 0 && philo->eat_count == get_eat_cicles())
-		return ;
+
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_lock(&philo[left_fork].fork);
@@ -70,7 +69,12 @@ void	eat(t_philo *philo)
 	print_action("is eating", philo->id);
 	usleep(get_core()->time_to_eat * 1000);
 	
+	pthread_mutex_lock(&get_core()->joker[EAT_COUNT]);
 	philo->eat_count++;
+	pthread_mutex_unlock(&get_core()->joker[EAT_COUNT]);
+	
+
+	
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_unlock(&philo[left_fork].fork);
@@ -88,7 +92,7 @@ void	chill(t_philo *philo)
 	print_action("is sleeping", philo->id);
 	usleep(get_core()->time_to_sleep * 1000);
 	print_action("is thinking", philo->id);
-	//usleep(1000);
+	usleep(1000);
 }
 
 t_bool monitor(t_core *core)
@@ -142,6 +146,8 @@ void	*routine(void *void_philo)
 		instakill();
 	while (!verify_die())
 	{
+		if(get_eat_cicles() != 0 && philo->eat_count >= get_eat_cicles())
+			return (NULL);
 		eat(philo);
 		chill(philo);
 	}
@@ -213,7 +219,6 @@ void	destroy_philos(void)
 	while (i < n_of_philos)
 	{
 		pthread_mutex_destroy(&philos[i].fork);
-		printf("BYE\n");
 		i++;
 	}
 	i = 0;
@@ -222,7 +227,6 @@ void	destroy_philos(void)
 		pthread_mutex_destroy(&get_core()->joker[i]);
 		i++;
 	}
-	//pthread_join(get_core()->monitor, NULL);
 }
 
 int	main(int argc, char **argv)

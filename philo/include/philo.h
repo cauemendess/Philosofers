@@ -6,14 +6,14 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/08 18:51:21 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/11 17:25:27 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
-# include "libft.h"
+//# include "libft.h"
 # include <pthread.h>
 # include <stdio.h>
 # include <stdlib.h>
@@ -72,5 +72,8 @@ size_t			get_ms(void);
 t_bool			verify_die(void);
 size_t			get_last_meal(t_philo *philo);
 int				get_nb_philos(void);
+int				ft_atoi(const char *nptr);
+int				ft_isdigit(int c);
+
 
 #endif
