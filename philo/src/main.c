@@ -6,7 +6,7 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:38:35 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/11 17:05:29 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/11 18:51:52 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,19 @@ t_core	*get_core(void)
 void	print_action(char *str, int id)
 {
 	pthread_mutex_lock(&get_core()->print);
-	if(!verify_die())
+	if (!verify_die())
 		printf("%llu %d %s\n", get_time() - get_core()->day, id, str);
 	pthread_mutex_unlock(&get_core()->print);
 }
 
-size_t set_last_meal(void)
+size_t	set_last_meal(void)
 {
-	size_t last_meal;
+	size_t	last_meal;
+
 	pthread_mutex_lock(&get_core()->joker[LAST_MEAL]);
 	last_meal = get_time();
 	pthread_mutex_unlock(&get_core()->joker[LAST_MEAL]);
-	return(last_meal);
+	return (last_meal);
 }
 
 void	eat(t_philo *philo)
@@ -44,11 +45,10 @@ void	eat(t_philo *philo)
 
 	n_of_philos = get_core()->nb_of_philos;
 	left_fork = 0;
-	if(philo->id == n_of_philos)
+	if (philo->id == n_of_philos)
 		right_fork = -(philo->id - 1);
 	else
 		right_fork = 1;
-
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_lock(&philo[left_fork].fork);
@@ -61,20 +61,14 @@ void	eat(t_philo *philo)
 	}
 	print_action("has taken a fork", philo->id);
 	print_action("has taken a fork", philo->id);
-	
 	pthread_mutex_lock(&get_core()->joker[LAST_MEAL]);
 	philo->last_meal = get_time();
 	pthread_mutex_unlock(&get_core()->joker[LAST_MEAL]);
-	
 	print_action("is eating", philo->id);
 	usleep(get_core()->time_to_eat * 1000);
-	
 	pthread_mutex_lock(&get_core()->joker[EAT_COUNT]);
 	philo->eat_count++;
 	pthread_mutex_unlock(&get_core()->joker[EAT_COUNT]);
-	
-
-	
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_unlock(&philo[left_fork].fork);
@@ -95,11 +89,35 @@ void	chill(t_philo *philo)
 	usleep(1000);
 }
 
-t_bool monitor(t_core *core)
+int	get_eat_count(t_philo *philo)
 {
-	int i;
+	int	eat_count;
+
+	pthread_mutex_lock(&get_core()->joker[EAT_COUNT]);
+	eat_count = philo->eat_count;
+	pthread_mutex_unlock(&get_core()->joker[EAT_COUNT]);
+	return (eat_count);
+}
+
+t_bool	verify_philos_meals(void)
+{
+	int	i;
+
+	i = 0;
+	while (i < get_nb_philos())
+	{
+		if (get_eat_count(&get_core()->philos[i]) < get_eat_cicles())
+			return (FALSE);
+		i++;
+	}
+	return (TRUE);
+}
+
+t_bool	monitor(t_core *core)
+{
+	int		i;
 	t_philo	*philo;
-	size_t meal;
+	size_t	meal;
 
 	philo = core->philos;
 	i = 0;
@@ -114,19 +132,25 @@ t_bool monitor(t_core *core)
 			pthread_mutex_lock(&get_core()->joker[PHILO_DIE]);
 			get_core()->philo_dies = TRUE;
 			pthread_mutex_unlock(&get_core()->joker[PHILO_DIE]);
-			return(1);
+			return (1);
+		}
+		else if (verify_philos_meals())
+		{
+			pthread_mutex_lock(&get_core()->joker[PHILO_DIE]);
+			get_core()->philo_dies = TRUE;
+			pthread_mutex_unlock(&get_core()->joker[PHILO_DIE]);
+			return (0);
 		}
 	}
 	return(0);
 }
 
-void instakill(void)
+void	instakill(void)
 {
 	t_core	*core;
 
 	core = get_core();
 	print_action("has taken a fork", core->philos->id);
-
 	usleep(core->time_to_die * 1000);
 	print_action("died", 1);
 	pthread_mutex_lock(&core->joker[PHILO_DIE]);
@@ -134,20 +158,15 @@ void instakill(void)
 	pthread_mutex_unlock(&core->joker[PHILO_DIE]);
 }
 
-
-
 void	*routine(void *void_philo)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)void_philo;
-
-	if(get_nb_philos() == 1)
+	if (get_nb_philos() == 1)
 		instakill();
 	while (!verify_die())
 	{
-		if(get_eat_cicles() != 0 && philo->eat_count >= get_eat_cicles())
-			return (NULL);
 		eat(philo);
 		chill(philo);
 	}
@@ -158,11 +177,12 @@ void	inicialize_philos(void)
 	int		i;
 	int		n_of_philos;
 	t_philo	*philos;
+
 	n_of_philos = get_core()->nb_of_philos;
 	philos = get_core()->philos;
 	pthread_mutex_init(&get_core()->print, NULL);
 	i = 0;
-	while(i < 10)
+	while (i < 10)
 	{
 		pthread_mutex_init(&get_core()->joker[i], NULL);
 		i++;
@@ -180,10 +200,9 @@ void	inicialize_philos(void)
 		philos[i].id = i + 1;
 		philos[i].last_meal = get_time();
 		pthread_create(&philos[i].philo, NULL, &routine, &philos[i]);
-		
 		i++;
 	}
-	while(!monitor(get_core()))
+	while (!monitor(get_core()))
 		;
 }
 
@@ -209,8 +228,7 @@ void	destroy_philos(void)
 	philos = get_core()->philos;
 	n_of_philos = get_core()->nb_of_philos;
 	i = 0;
-
-	while(i < n_of_philos)
+	while (i < n_of_philos)
 	{
 		pthread_join(philos[i].philo, NULL);
 		i++;
@@ -222,7 +240,7 @@ void	destroy_philos(void)
 		i++;
 	}
 	i = 0;
-	while(i < 10)
+	while (i < 10)
 	{
 		pthread_mutex_destroy(&get_core()->joker[i]);
 		i++;

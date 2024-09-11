@@ -6,14 +6,13 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/11 17:25:27 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/11 18:10:04 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
-
-//# include "libft.h"
+ 
 # include <pthread.h>
 # include <stdio.h>
 # include <stdlib.h>
@@ -62,6 +61,7 @@ typedef struct s_core
 	pthread_mutex_t joker[10];
 	pthread_t		monitor;
 	t_bool			philo_dies;
+	t_bool			all_eat;
 }					t_core;
 
 t_core			*get_core(void);
