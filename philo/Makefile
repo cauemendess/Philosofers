@@ -10,7 +10,7 @@ RM      = rm -f
 NAME    = philo
 
 SRCDIR  = src/
-SRC     = main.c getters.c utils.c time.c validate.c
+SRC     = main.c getters.c utils.c time.c validate.c monitor.c routine.c init.c getters2.c
 SRCS    = $(addprefix $(SRCDIR), $(SRC))
 OBJDIR  = bin/
 OBJS    = $(addprefix $(OBJDIR), $(SRC:.c=.o))

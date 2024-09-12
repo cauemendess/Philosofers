@@ -6,21 +6,21 @@
 /*   By: csilva-m <csilva-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 17:35:14 by csilva-m          #+#    #+#             */
-/*   Updated: 2024/09/11 18:10:04 by csilva-m         ###   ########.fr       */
+/*   Updated: 2024/09/12 17:05:13 by csilva-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
- 
+
 # include <pthread.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <sys/time.h>
 # include <unistd.h>
 
-
-enum{
+enum
+{
 	PHILO_DIE,
 	START_TIME,
 	PHILO_COUNT,
@@ -57,23 +57,37 @@ typedef struct s_core
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				eat_cicles;
-	pthread_mutex_t print;
-	pthread_mutex_t joker[10];
+	pthread_mutex_t	print;
+	pthread_mutex_t	joker[10];
 	pthread_t		monitor;
 	t_bool			philo_dies;
 	t_bool			all_eat;
 }					t_core;
 
-t_core			*get_core(void);
-long			get_time(void);
+//sett
+size_t				set_last_meal(void);
 
-int				get_eat_cicles(void);
-size_t			get_ms(void);
-t_bool			verify_die(void);
-size_t			get_last_meal(t_philo *philo);
-int				get_nb_philos(void);
-int				ft_atoi(const char *nptr);
-int				ft_isdigit(int c);
+// getters
+t_core				*get_core(void);
+long				get_time(void);
+int					get_eat_cicles(void);
+size_t				get_ms(void);
+t_bool				verify_die(void);
+size_t				get_last_meal(t_philo *philo);
+int					get_nb_philos(void);
 
+//util
+int					ft_atoi(const char *nptr);
+int					ft_isdigit(int c);
+void				print_action(char *str, int id);
+
+// algorithm
+void				*routine(void *void_philo);
+void				inicialize_philos(void);
+int					get_eat_count(t_philo *philo);
+t_bool				monitor(t_core *core);
+void				instakill(void);
+
+t_bool				validate_args(int argc, char **argv);
 
 #endif
